@@ -43,6 +43,7 @@ This page will regularly be updated to show what features have been added, are i
 * Website is up and running, being hosted by Heroku
 * The client can request a LapBear device connection from the server
 * The server can gather LapBear device data and return it to the client
+* **Note:** Because the LapBear hardware hasn't been built yet, a Logitech G29 wheel, pedals, and shifter are being used as a substitute until more time/funding can be dedicated to building custom hardware.
 
 ### In Progress :thought_balloon:
 * Building basic home page UI
