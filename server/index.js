@@ -5,6 +5,8 @@ const PORT = process.env.PORT || 3001;
 
 const app = express();
 
+const lapBear = require("./lapBear");
+
 // Have Node serve the files for our built React app
 app.use(express.static(path.resolve(__dirname, "../client/build")));
 
@@ -14,11 +16,13 @@ app.get("/home", (req, res) => {
 });
 
 app.get("/startRace", (req, res) => {
-  res.json({ message: "Listening for race data" });
+  var data = lapBear.connectLapBear();
+  res.json({ message: data });
 });
 
 app.get("/endRace", (req, res) => {
-  res.json({ message: "Stopped listening for race data" });
+  var data = lapBear.disconnectLapBear();
+  res.json({ message: data });
 });
 
 // All other GET requests not handled before will return our React app
