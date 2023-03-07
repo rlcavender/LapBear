@@ -9,7 +9,7 @@ const Layout = () => {
         <header>
           <div class="logo-title">
             <Link to="/"><img src={logo} alt="LapBear Logo" width="100" height="100"/></Link>
-            <h1>LapBear ʕ •ᴥ•ʔ</h1>
+            <span>LapBear</span>
           </div>
           <nav>
             <ul>

@@ -1,12 +1,11 @@
 import React from "react";
 import "./App.css";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import NoPage from "./pages/NoPage";
-import logo from "./LapBear_6_Transparent.png";
 
 function App() {
   const [message, setMessage] = React.useState(null);
