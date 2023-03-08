@@ -1,4 +1,31 @@
 const g = require('logitech-g29');
+const fs = require('fs');
+const path = require('path');
+
+// Specify the directory where the file should be saved
+const directory = path.join(__dirname, 'dataFiles');
+
+// Create the directory if it doesn't exist
+if (!fs.existsSync(directory)) {
+  fs.mkdirSync(directory);
+}
+
+// assemble filename in YY-MM-DD-HH-MM-SS format
+const now = new Date();
+
+const year = now.getFullYear().toString().slice(-2); // Get the last 2 digits of the year
+const month = ("0" + (now.getMonth() + 1)).slice(-2); // Add leading zero to the month
+const day = ("0" + now.getDate()).slice(-2); // Add leading zero to the day
+const hour = ("0" + now.getHours()).slice(-2); // Add leading zero to the hour
+const minute = ("0" + now.getMinutes()).slice(-2); // Add leading zero to the minute
+const second = ("0" + now.getSeconds()).slice(-2); // Add leading zero to the second
+
+const dateTime = `${year}-${month}-${day}-${hour}-${minute}-${second}`;
+
+console.log(dateTime);
+
+// Specify the file path
+const filePath = path.join(directory, 'sampleRaceData.txt');
 
 var data = "";
 
@@ -56,6 +83,10 @@ function gatherRaceData(active) {
   } else {
     data = data.substring(0, data.length - 1);
     data += "]";
+    // Create a new file with the specified name and write some text to it
+    fs.writeFile(filePath, data, (err) => {
+      if (err) throw err;
+    });
     return data;
   }
   return data;
