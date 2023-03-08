@@ -8,32 +8,6 @@ import SignUp from "./pages/SignUp";
 import NoPage from "./pages/NoPage";
 
 function App() {
-  const [message, setMessage] = React.useState(null);
-  const [raceData, setRaceData] = React.useState([]);
-
-  React.useEffect(() => {
-    fetch("/home")
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message));
-  }, []);
-
-  function handleStartRace() {
-    fetch("/startRace")
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message));
-  }
-
-  function handleEndRace() {
-    setMessage("Returning LapBear data...");
-    fetch("/endRace")
-      .then((res) => res.json())
-      .then((data) => setRaceData(JSON.parse(data.message)));
-  }
-
-  function displayRaceData() {
-    return raceData.map((logItem) => <li>{logItem}</li>);
-  }
-
   return (
     <>
       <BrowserRouter>
