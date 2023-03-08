@@ -41,15 +41,20 @@ This page will regularly be updated to show what features have been added, are i
 
 ### Finished Features :white_check_mark:
 * Website is up and running, being hosted by Heroku
+  * Basic home page
+  * Login page
+  * Signup page
+  * 'Page not found' page
 * The client can request a LapBear device connection from the server
 * The server can gather LapBear device data and return it to the client
+  * Basic file I/O-- data gathered from server is stored in a .txt file named after date and time
 * **Note:** Because the LapBear hardware hasn't been built yet, a Logitech G29 wheel, pedals, and shifter are being used as a substitute until more time/funding can be dedicated to building custom hardware.
 
 ### In Progress :thought_balloon:
-* Building basic home page UI
+* Adding file upload capabilities and basic race data analysis
 * Integrating with Firebase to support secure user registration and login
 
 ### Up Next :pencil2:
-* UX design -- building a beautiful, multi-page site blueprint
-* Basic UI implementation -- begin building various pages of the site, without full functionality yet
-* Beginning to add functionality to some pages of the site (Login / Signup page, profile page, etc)
+* Adding more pages to the site -- homepage upon login, profile page, device connection page, etc
+* Fleshing out existing pages
+* More & better race data analysis
