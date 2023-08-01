@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
-    "logitech-g29": "^1.3.2"
+    "logitech-g29": "^1.3.2",
+    "plotly.js": "^2.25.0",
+    "react-plotly.js": "^2.6.0"
   },
   "engines": {
     "node": "14.17.0"

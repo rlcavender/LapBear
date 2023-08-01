@@ -1,13 +1,17 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import "./SignUp.css";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // add code to create account
+    // TODO: add code to create account
+    navigate('/UploadRaceData');
   };
 
   return (
@@ -20,14 +24,14 @@ function Login() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            required
+            // required
           />
           <label>Password:</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
+            // required
           />
           <button type="submit">Log In</button>
         </form>

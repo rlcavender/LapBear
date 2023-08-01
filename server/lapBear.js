@@ -80,6 +80,7 @@ function gatherRaceData(active) {
         }
       }
     })
+    data += "\"Wheel turned to 50\",";
   } else {
     data = data.substring(0, data.length - 1);
     data += "]";

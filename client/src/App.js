@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import NoPage from "./pages/NoPage";
+import UploadRaceData from "./pages/UploadRaceData";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/Login" element={<Login />} />
             <Route path="/SignUp" element={<SignUp />} />
+            <Route path="/UploadRaceData" element={<UploadRaceData />} />
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>
