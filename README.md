@@ -44,14 +44,21 @@ This page will regularly be updated to show what features have been added, are i
   * Basic home page
   * Login page
   * Signup page
+  * Upload Race Data page
   * 'Page not found' page
 * The client can request a LapBear device connection from the server
 * The server can gather LapBear device data and return it to the client
   * Basic file I/O-- data gathered from server is stored in a .txt file named after date and time
+* **Upload Race Data**
+  * Can upload a .txt file with race data
+  * Once file is uploaded, contents will be analyzed
+  * Generates a plot of wheel data throughout race
+  * Generates an estimated track layout (needs further tweaking)
 * **Note:** Because the LapBear hardware hasn't been built yet, a Logitech G29 wheel, pedals, and shifter are being used as a substitute until more time/funding can be dedicated to building custom hardware.
 
 ### In Progress :thought_balloon:
-* Adding file upload capabilities and basic race data analysis
+* Fix estimated track layout
+* Add plots for throttle/brake and current gear throughout race
 * Integrating with Firebase to support secure user registration and login
 
 ### Up Next :pencil2:
