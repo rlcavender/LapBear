@@ -3,61 +3,64 @@ import React from "react";
 import Plot from 'react-plotly.js';
 
 function UploadRaceData() {
-  const [fileContents, setFileContents] = React.useState();
   const [wheelValues, setWheelValues] = React.useState([]);
-  const [plotRange, setPlotRange] = React.useState([]);
+  const [plotRange, setPlotRange] = React.useState();
   const [fileName, setFileName] = React.useState('');
 
-  // Read and parse file contents
-  const showFile = async (e) => { 
+  // Handle file upload
+  const showFile = async (e) => {
+    // open file
     e.preventDefault();
     setFileName(e.target.value);
     const reader = new FileReader();
-    reader.onload = async (e) => { 
+
+    reader.onload = async (e) => {
+      // read and parse contents
       const text = (e.target.result);
-      console.log(text);
-      let values = text.split("\",\"Wheel turned to ");
+
+      var values = text.split("\",\"Wheel turned to ");
       values = values.slice(1, -1);
       var valuesFloat = values.map(function (value) { 
         return parseFloat(value, 10); 
       });
-      console.log(valuesFloat);
+
       setWheelValues(valuesFloat);
-      var rangeArr = values.map(function (value, index) {
-        return index;
-      });
-      setPlotRange(rangeArr);
-      console.log(rangeArr);
-      setFileContents(values);
+      setPlotRange(valuesFloat.length);
         
-      // draw race track
+      // draw race track approximation
       var canvas = document.getElementById('trackCanvas');
       if (canvas.getContext) {
         var ctx = canvas.getContext('2d');
-        let plotPoints = [[]];
-        console.log(rangeArr.length);
-        for (let i = 0; i < rangeArr.length; i++) {
-          plotPoints[i] = [rangeArr[i], values[i]];
+
+        // for each wheel value, create an [x, y] coordinate pair
+        var startCoords = [300, 300];
+        var plotPoints = [[]];
+        for (let i = 0; i < values.length; i++) {
+          plotPoints[i] = [i, values[i]];
         }
         console.log(plotPoints);
-
-        let startCoords = [300, 300];
 
         ctx.beginPath();
         ctx.moveTo.apply(ctx, startCoords);
         const maxIterator = plotPoints.length;
 
-        for (let i = 0; i < maxIterator; i+=10) {
-          let x1 = startCoords[0];
-          let y1 = startCoords[1];
-          let r =  1;
-          let theta = (plotPoints[i][1] / 100) * 360;
-          let newCoords = [x1 + r * Math.cos(Math.PI * theta / 180.0), y1 + r * Math.sin(Math.PI * theta / 180.0)];
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(newCoords[0], newCoords[1]);
-          ctx.stroke();
-          startCoords = newCoords;
+        var directions = [
+          [1, 0], // 0
+          [1, 1], // 1
+          [0, 1], // 2
+          [-1, 1], // 3
+          [-1, 0], // 4
+          [-1, -1], // 5
+          [0, -1], // 6
+          [1, -1] // 7
+        ]
+
+        for (let i = 0; i < maxIterator; i+=100) {
+          let x2 = plotPoints[i][0]/100;
+          let y2 = plotPoints[i][1];
+          ctx.lineTo(x2, y2);
         }
+        ctx.stroke();
       } else {
         alert('Error drawing track layout');
       }
@@ -116,35 +119,3 @@ function UploadRaceData() {
 }
   
 export default UploadRaceData;
-
-
-/* 
-          switch(plotPoints[i][1]) {
-            case 0:
-              direction += 4;
-              break;
-            case 12.5: 
-              direction += 3;
-              break;
-            case 25:
-              direction += 2;
-              break;
-            case 37.5:
-              direction++;
-              break;
-            case 50:
-              break;
-            case 62.5:
-              direction--;
-              break;
-            case 75: 
-              direction -= 2;
-              break;
-            case 87.5:
-              direction -= 3;
-              break;
-            case 100:
-              direction -= 4;
-              break;
-          }
-*/
