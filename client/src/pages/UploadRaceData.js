@@ -33,7 +33,7 @@ function UploadRaceData() {
         var ctx = canvas.getContext('2d');
 
         // for each wheel value, create an [x, y] coordinate pair
-        var startCoords = [300, 300];
+        var startCoords = [340, 140];
         var plotPoints = [[]];
         for (let i = 0; i < values.length; i++) {
           plotPoints[i] = [i, values[i]];
@@ -43,22 +43,48 @@ function UploadRaceData() {
         ctx.beginPath();
         ctx.moveTo.apply(ctx, startCoords);
         const maxIterator = plotPoints.length;
+        const scale = 100;
 
-        var directions = [
-          [1, 0], // 0
-          [1, 1], // 1
-          [0, 1], // 2
-          [-1, 1], // 3
-          [-1, 0], // 4
-          [-1, -1], // 5
-          [0, -1], // 6
-          [1, -1] // 7
-        ]
+        // generate direction multipliers
+        var directions = [[]];
+        var x = 100;
+        var y = 0;
+        var xDec = true;
+        var yDec = false;
+        for (let i = 0; i <= 100; i++) {
+          directions[i] = [x/100, y/100];
+          xDec ? x-=4 : x+=4;
+          yDec ? y-=4 : y+=4;
+          if (x <= -100) {
+            xDec = false;
+          }
+          if (y >= 100) {
+            yDec = true;
+          }
+        }
+        console.log(directions);
 
-        for (let i = 0; i < maxIterator; i+=100) {
-          let x2 = plotPoints[i][0]/100;
-          let y2 = plotPoints[i][1];
+        var currentDirection = directions[0];
+        var pointScale = 1;
+
+        for (let i = 0; i < maxIterator; i+=scale) {
+          let x1 = startCoords[0];
+          let y1 = startCoords[1];
+
+          // apply direction multiplier to get next point
+          // (starting point) + [(dist to next plot point aka scale) * (direction multiplier)]
+          let x2 = x1 + (pointScale * currentDirection[0]);
+          let y2 = y1 + (pointScale * currentDirection[1]);
+
+          // shift direction based on wheel turn
+          let roundedVal = Math.round(plotPoints[i][1]);
+          currentDirection = directions[roundedVal];
+
+          // draw line
           ctx.lineTo(x2, y2);
+
+          // update startCoords for next line to be drawn
+          startCoords = [x2, y2];
         }
         ctx.stroke();
       } else {
@@ -113,9 +139,23 @@ function UploadRaceData() {
           <li>Fix track estimation algorithm</li>
           <li>Factor in throttle/break values</li>
         </ul>
-        <canvas id="trackCanvas" width="1000" height="1000"/>
+        <canvas id="trackCanvas" width="350" height="150"/>
       </main>
   );
 }
   
 export default UploadRaceData;
+
+/*
+        var directions = [
+          [1, 0],   // 1      0
+          [1, 1],   // 0.5    0.5
+          [0, 1],   // 0      1 
+          [-1, 1],  // -0.5   0.5
+          [-1, 0],  // -1     0
+          [-1, -1], // -0.5   -0.5
+          [0, -1],  // 0      -1
+          [1, -1]   // 0.5    -0.5
+          [1, 0]    // 1      0
+        ]
+        */
