@@ -7,75 +7,70 @@ function UploadRaceData() {
   const [brakeData, setBrakeData] = React.useState([]);
   const [throttleData, setThrottleData] = React.useState([]);
   const [gearData, setGearData] = React.useState([]);
+  const [brakeThrottleData, setBrakeThrottleData] = React.useState([]);
 
   const [wheelDataRange, setWheelDataRange] = React.useState([]);
   const [brakeDataRange, setBrakeDataRange] = React.useState([]);
   const [throttleDataRange, setThrottleDataRange] = React.useState([]);
   const [gearDataRange, setGearDataRange] = React.useState([]);
+  const [brakeThrottleDataRange, setBrakeThrottleDataRange] = React.useState([]);
 
   const [fileName, setFileName] = React.useState('');
 
   const plotScale = 500;
 
-  const separateByIdentifier = (values, identifier) => {
-    var wRange = [];
-    var bRange = [];
-    var tRange = [];
-    var gRange = [];
+  const separateByIdentifier = (values) => {
+    var wRange = [], bRange = [], tRange = [], gRange = [], btRange = [];
+    var wheelData = [], brakeData = [], throttleData = [], gearData = [], brakeThrottleData = [];
 
-    var result = [];
-    var index = 0;
     for (let i = 0; i < values.length; i++) {
-      if (values[i][0] === identifier) {
-        // values.slice(index, 1);
-        switch (identifier) {
-          case 'W':
-            wRange.push(i);
-            break;
-          case 'B':
-            bRange.push(i);
-            break;
-          case 'T':
-            tRange.push(i);
-            break;
-          case 'G':
-            gRange.push(i);
-            break;
-        }
-        result[index] = parseFloat(values[i].replace(identifier, ""));
-        index++;
+      // values.slice(index, 1);
+      switch (values[i][0]) {
+        case 'W':
+          wRange.push(i);
+          wheelData.push(parseFloat(values[i].replace('W', '')));
+          break;
+        case 'B':
+          bRange.push(i);
+          btRange.push(i);
+          brakeData.push(parseFloat(values[i].replace('B', '')));
+          brakeThrottleData.push(parseFloat(values[i].replace('B', '')));
+          break;
+        case 'T':
+          tRange.push(i);
+          btRange.push(i);
+          throttleData.push(parseFloat(values[i].replace('T', '')));
+          brakeThrottleData.push(parseFloat(values[i].replace('T', '')));
+          break;
+        case 'G':
+          gRange.push(i);
+          gearData.push(parseFloat(values[i].replace('G', '')));
+          break;
       }
     }
-    switch(identifier) {
-      case 'W':
-        setWheelDataRange(wRange);
-        break;
-      case 'B':
-        setBrakeDataRange(bRange);
-        break;
-      case 'T':
-        setThrottleDataRange(tRange);
-        break;
-      case 'G':
-        setGearDataRange(gRange);
-        break;
-    }
-    return result;
+
+    setWheelData(wheelData);
+    setBrakeData(brakeData);
+    setThrottleData(throttleData);
+    setGearData(gearData);
+    setBrakeThrottleData(brakeThrottleData);
+
+    setWheelDataRange(wRange);
+    setBrakeDataRange(bRange);
+    setThrottleDataRange(tRange);
+    setGearDataRange(gRange);
+    setBrakeThrottleDataRange(btRange);
+
+    return [wheelData, brakeThrottleData];
   }
 
   const parseData = (rawData) => {
     var values = rawData.split("\",\"");
     values = values.slice(1, -1);
 
-    var wheelData = separateByIdentifier(values, "W");
-    var brakeData = separateByIdentifier(values, "B");
-    var throttleData = separateByIdentifier(values, "T");
-    var gearData = separateByIdentifier(values, "G");
-
-    setWheelData(wheelData);
-    setBrakeData(brakeData);
-    setThrottleData(throttleData);
-    setGearData(gearData);
+    var parsedData = separateByIdentifier(values);
+    var wheelData = parsedData[0];
+    var brakeThrottleData = parsedData[1];
       
     // draw race track approximation
     var canvas = document.getElementById('trackCanvas');
@@ -112,6 +107,7 @@ function UploadRaceData() {
         }
       }
 
+      // generate track layout
       var currentDirection = directions[0];
       var pointScale = 1;
 
