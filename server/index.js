@@ -1,5 +1,6 @@
 const path = require("path");
 const express = require("express");
+const fs = require("fs");
 
 const PORT = process.env.PORT || 3001;
 
@@ -23,6 +24,13 @@ app.get("/startRace", (req, res) => {
 app.get("/endRace", (req, res) => {
   var data = lapBear.disconnectLapBear();
   res.json({ message: data });
+});
+
+app.get("/sampleFile", (req, res) => {
+  fs.readFile(path.resolve(__dirname, "./dataFiles/BahrainLapv5.txt"), function (err, data) {
+    data = data.toString('utf-8');
+    res.json({ contents: data });
+}) 
 });
 
 // All other GET requests not handled before will return our React app

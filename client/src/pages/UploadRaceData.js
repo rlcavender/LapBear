@@ -63,6 +63,83 @@ function UploadRaceData() {
     return result;
   }
 
+  const parseData = (rawData) => {
+    var values = rawData.split("\",\"");
+    values = values.slice(1, -1);
+
+    var wheelData = separateByIdentifier(values, "W");
+    var brakeData = separateByIdentifier(values, "B");
+    var throttleData = separateByIdentifier(values, "T");
+    var gearData = separateByIdentifier(values, "G");
+
+    setWheelData(wheelData);
+    setBrakeData(brakeData);
+    setThrottleData(throttleData);
+    setGearData(gearData);
+      
+    // draw race track approximation
+    var canvas = document.getElementById('trackCanvas');
+    if (canvas.getContext) {
+      var ctx = canvas.getContext('2d');
+
+      // for each wheel value, create an [x, y] coordinate pair
+      var startCoords = [475, 475];
+      var plotPoints = [[]];
+      for (let i = 0; i < wheelData.length; i++) {
+        plotPoints[i] = [i, wheelData[i]];
+      }
+
+      ctx.beginPath();
+      ctx.moveTo.apply(ctx, startCoords);
+      const maxIterator = plotPoints.length;
+      const scale = 100;
+
+      // generate direction multipliers
+      var directions = [[]];
+      var x = 100;
+      var y = 0;
+      var xDec = true;
+      var yDec = false;
+      for (let i = 0; i <= 100; i++) {
+        directions[i] = [x/100, y/100];
+        xDec ? x-=4 : x+=4;
+        yDec ? y-=4 : y+=4;
+        if (x <= -100) {
+          xDec = false;
+        }
+        if (y >= 100) {
+          yDec = true;
+        }
+      }
+
+      var currentDirection = directions[0];
+      var pointScale = 1;
+
+      for (let i = 0; i < maxIterator; i+=scale) {
+        let x1 = startCoords[0];
+        let y1 = startCoords[1];
+
+        // apply direction multiplier to get next point
+        // (starting point) + [(dist to next plot point aka scale) * (direction multiplier)]
+        let x2 = x1 + (pointScale * currentDirection[0]);
+        let y2 = y1 + (pointScale * currentDirection[1]);
+
+        // shift direction based on wheel turn
+        let roundedVal = Math.round(plotPoints[i][1]);
+        currentDirection = directions[roundedVal];
+
+        // draw line
+        ctx.lineTo(x2, y2);
+
+        // update startCoords for next line to be drawn
+        startCoords = [x2, y2];
+      }
+      ctx.stroke();
+    } else {
+      alert('Error drawing track layout');
+    }
+  }
+
   // Handle file upload
   const showFile = async (e) => {
     // open file
@@ -73,84 +150,16 @@ function UploadRaceData() {
     reader.onload = async (e) => {
       // read and parse contents
       const text = (e.target.result);
-      var values = text.split("\",\"");
-      values = values.slice(1, -1);
-      console.log(values);
-
-      var wheelData = separateByIdentifier(values, "W");
-      var brakeData = separateByIdentifier(values, "B");
-      var throttleData = separateByIdentifier(values, "T");
-      var gearData = separateByIdentifier(values, "G");
-
-      setWheelData(wheelData);
-      setBrakeData(brakeData);
-      setThrottleData(throttleData);
-      setGearData(gearData);
-        
-      // draw race track approximation
-      var canvas = document.getElementById('trackCanvas');
-      if (canvas.getContext) {
-        var ctx = canvas.getContext('2d');
-
-        // for each wheel value, create an [x, y] coordinate pair
-        var startCoords = [475, 475];
-        var plotPoints = [[]];
-        for (let i = 0; i < wheelData.length; i++) {
-          plotPoints[i] = [i, wheelData[i]];
-        }
-
-        ctx.beginPath();
-        ctx.moveTo.apply(ctx, startCoords);
-        const maxIterator = plotPoints.length;
-        const scale = 100;
-
-        // generate direction multipliers
-        var directions = [[]];
-        var x = 100;
-        var y = 0;
-        var xDec = true;
-        var yDec = false;
-        for (let i = 0; i <= 100; i++) {
-          directions[i] = [x/100, y/100];
-          xDec ? x-=4 : x+=4;
-          yDec ? y-=4 : y+=4;
-          if (x <= -100) {
-            xDec = false;
-          }
-          if (y >= 100) {
-            yDec = true;
-          }
-        }
-
-        var currentDirection = directions[0];
-        var pointScale = 1;
-
-        for (let i = 0; i < maxIterator; i+=scale) {
-          let x1 = startCoords[0];
-          let y1 = startCoords[1];
-
-          // apply direction multiplier to get next point
-          // (starting point) + [(dist to next plot point aka scale) * (direction multiplier)]
-          let x2 = x1 + (pointScale * currentDirection[0]);
-          let y2 = y1 + (pointScale * currentDirection[1]);
-
-          // shift direction based on wheel turn
-          let roundedVal = Math.round(plotPoints[i][1]);
-          currentDirection = directions[roundedVal];
-
-          // draw line
-          ctx.lineTo(x2, y2);
-
-          // update startCoords for next line to be drawn
-          startCoords = [x2, y2];
-        }
-        ctx.stroke();
-      } else {
-        alert('Error drawing track layout');
-      }
+      parseData(text);
     };
     reader.readAsText(e.target.files[0]);
   };
+
+  const useSampleFile = () => {
+    fetch("/sampleFile")
+      .then((res) => res.json())
+      .then((data) => parseData(data.contents));
+  }
 
   const data = [
     ['New Castle', 'New Castle IN', '10'],
@@ -163,22 +172,17 @@ function UploadRaceData() {
   return (
       <main>
         <h1>Upload Race Data</h1>
-        <p>TODO:</p>
+        {/*<p>TODO:</p>
         <ul>
           <li>Can upload a race data file in each row</li>
           <li>Table data is associated with each user and changes can be saved</li>
           <li>Add/update/delete rows</li>
         </ul>
-        <EditableTable data={data} columns={columns} />
+        <EditableTable data={data} columns={columns} />*/}
         <br/><br/>
         <input type="file" onChange={(e) => showFile(e)} />
+        <button onClick={useSampleFile}>Use sample file (Bahrain)</button>
         <p>{fileName}</p>
-        <p>TODO:</p>
-        <ul>
-          <li>Throttle/brake analysis</li>
-          <li>Shifting / current gear analysis</li>
-          <li>Save plots in user's info so this doesn't have to be re-calculated every time the page loads</li>
-        </ul>
         <Plot
           data={[
             {
@@ -228,11 +232,6 @@ function UploadRaceData() {
           layout={ {width: plotScale, height: plotScale, title: 'Gear Data'} }
         />
         <h3>Estimated Track Layout</h3>
-        <p>TODO:</p>
-        <ul>
-          <li>Fix track estimation algorithm</li>
-          <li>Factor in throttle/break values</li>
-        </ul>
         <canvas id="trackCanvas" width="500" height="500"/>
       </main>
   );
