@@ -3,61 +3,148 @@ import React from "react";
 import Plot from 'react-plotly.js';
 
 function UploadRaceData() {
-  const [fileContents, setFileContents] = React.useState();
-  const [wheelValues, setWheelValues] = React.useState([]);
-  const [plotRange, setPlotRange] = React.useState([]);
+  const [wheelData, setWheelData] = React.useState([]);
+  const [brakeData, setBrakeData] = React.useState([]);
+  const [throttleData, setThrottleData] = React.useState([]);
+  const [gearData, setGearData] = React.useState([]);
+
+  const [wheelDataRange, setWheelDataRange] = React.useState([]);
+  const [brakeDataRange, setBrakeDataRange] = React.useState([]);
+  const [throttleDataRange, setThrottleDataRange] = React.useState([]);
+  const [gearDataRange, setGearDataRange] = React.useState([]);
+
   const [fileName, setFileName] = React.useState('');
 
-  // Read and parse file contents
-  const showFile = async (e) => { 
+  const plotScale = 500;
+
+  const separateByIdentifier = (values, identifier) => {
+    var wRange = [];
+    var bRange = [];
+    var tRange = [];
+    var gRange = [];
+
+    var result = [];
+    var index = 0;
+    for (let i = 0; i < values.length; i++) {
+      if (values[i][0] === identifier) {
+        // values.slice(index, 1);
+        switch (identifier) {
+          case 'W':
+            wRange.push(i);
+            break;
+          case 'B':
+            bRange.push(i);
+            break;
+          case 'T':
+            tRange.push(i);
+            break;
+          case 'G':
+            gRange.push(i);
+            break;
+        }
+        result[index] = parseFloat(values[i].replace(identifier, ""));
+        index++;
+      }
+    }
+    switch(identifier) {
+      case 'W':
+        setWheelDataRange(wRange);
+        break;
+      case 'B':
+        setBrakeDataRange(bRange);
+        break;
+      case 'T':
+        setThrottleDataRange(tRange);
+        break;
+      case 'G':
+        setGearDataRange(gRange);
+        break;
+    }
+    return result;
+  }
+
+  // Handle file upload
+  const showFile = async (e) => {
+    // open file
     e.preventDefault();
     setFileName(e.target.value);
     const reader = new FileReader();
-    reader.onload = async (e) => { 
+
+    reader.onload = async (e) => {
+      // read and parse contents
       const text = (e.target.result);
-      console.log(text);
-      let values = text.split("\",\"Wheel turned to ");
+      var values = text.split("\",\"");
       values = values.slice(1, -1);
-      var valuesFloat = values.map(function (value) { 
-        return parseFloat(value, 10); 
-      });
-      console.log(valuesFloat);
-      setWheelValues(valuesFloat);
-      var rangeArr = values.map(function (value, index) {
-        return index;
-      });
-      setPlotRange(rangeArr);
-      console.log(rangeArr);
-      setFileContents(values);
+      console.log(values);
+
+      var wheelData = separateByIdentifier(values, "W");
+      var brakeData = separateByIdentifier(values, "B");
+      var throttleData = separateByIdentifier(values, "T");
+      var gearData = separateByIdentifier(values, "G");
+
+      setWheelData(wheelData);
+      setBrakeData(brakeData);
+      setThrottleData(throttleData);
+      setGearData(gearData);
         
-      // draw race track
+      // draw race track approximation
       var canvas = document.getElementById('trackCanvas');
       if (canvas.getContext) {
         var ctx = canvas.getContext('2d');
-        let plotPoints = [[]];
-        console.log(rangeArr.length);
-        for (let i = 0; i < rangeArr.length; i++) {
-          plotPoints[i] = [rangeArr[i], values[i]];
-        }
-        console.log(plotPoints);
 
-        let startCoords = [300, 300];
+        // for each wheel value, create an [x, y] coordinate pair
+        var startCoords = [475, 475];
+        var plotPoints = [[]];
+        for (let i = 0; i < wheelData.length; i++) {
+          plotPoints[i] = [i, wheelData[i]];
+        }
 
         ctx.beginPath();
         ctx.moveTo.apply(ctx, startCoords);
         const maxIterator = plotPoints.length;
+        const scale = 100;
 
-        for (let i = 0; i < maxIterator; i+=10) {
+        // generate direction multipliers
+        var directions = [[]];
+        var x = 100;
+        var y = 0;
+        var xDec = true;
+        var yDec = false;
+        for (let i = 0; i <= 100; i++) {
+          directions[i] = [x/100, y/100];
+          xDec ? x-=4 : x+=4;
+          yDec ? y-=4 : y+=4;
+          if (x <= -100) {
+            xDec = false;
+          }
+          if (y >= 100) {
+            yDec = true;
+          }
+        }
+
+        var currentDirection = directions[0];
+        var pointScale = 1;
+
+        for (let i = 0; i < maxIterator; i+=scale) {
           let x1 = startCoords[0];
           let y1 = startCoords[1];
-          let r =  1;
-          let theta = (plotPoints[i][1] / 100) * 360;
-          let newCoords = [x1 + r * Math.cos(Math.PI * theta / 180.0), y1 + r * Math.sin(Math.PI * theta / 180.0)];
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(newCoords[0], newCoords[1]);
-          ctx.stroke();
-          startCoords = newCoords;
+
+          // apply direction multiplier to get next point
+          // (starting point) + [(dist to next plot point aka scale) * (direction multiplier)]
+          let x2 = x1 + (pointScale * currentDirection[0]);
+          let y2 = y1 + (pointScale * currentDirection[1]);
+
+          // shift direction based on wheel turn
+          let roundedVal = Math.round(plotPoints[i][1]);
+          currentDirection = directions[roundedVal];
+
+          // draw line
+          ctx.lineTo(x2, y2);
+
+          // update startCoords for next line to be drawn
+          startCoords = [x2, y2];
         }
+        ctx.stroke();
       } else {
         alert('Error drawing track layout');
       }
@@ -95,14 +182,50 @@ function UploadRaceData() {
         <Plot
           data={[
             {
-              x: plotRange,
-              y: wheelValues,
+              x: wheelDataRange,
+              y: wheelData,
               type: 'scatter',
               mode: 'lines+markers',
               marker: {color: 'red'},
             },
           ]}
-          layout={ {width: 500, height: 500, title: 'Wheel Value Throughout Race'} }
+          layout={ {width: plotScale, height: plotScale, title: 'Wheel Data'} }
+        />
+        <Plot
+          data={[
+            {
+              x: brakeDataRange,
+              y: brakeData,
+              type: 'scatter',
+              mode: 'lines+markers',
+              marker: {color: 'red'},
+            },
+          ]}
+          layout={ {width: plotScale, height: plotScale, title: 'Brake Data'} }
+        />
+        <Plot
+          data={[
+            {
+              x: throttleDataRange,
+              y: throttleData,
+              type: 'scatter',
+              mode: 'lines+markers',
+              marker: {color: 'red'},
+            },
+          ]}
+          layout={ {width: plotScale, height: plotScale, title: 'Throttle Data'} }
+        />
+        <Plot
+          data={[
+            {
+              x: gearDataRange,
+              y: gearData,
+              type: 'scatter',
+              mode: 'lines+markers',
+              marker: {color: 'red'},
+            },
+          ]}
+          layout={ {width: plotScale, height: plotScale, title: 'Gear Data'} }
         />
         <h3>Estimated Track Layout</h3>
         <p>TODO:</p>
@@ -110,41 +233,9 @@ function UploadRaceData() {
           <li>Fix track estimation algorithm</li>
           <li>Factor in throttle/break values</li>
         </ul>
-        <canvas id="trackCanvas" width="1000" height="1000"/>
+        <canvas id="trackCanvas" width="500" height="500"/>
       </main>
   );
 }
   
 export default UploadRaceData;
-
-
-/* 
-          switch(plotPoints[i][1]) {
-            case 0:
-              direction += 4;
-              break;
-            case 12.5: 
-              direction += 3;
-              break;
-            case 25:
-              direction += 2;
-              break;
-            case 37.5:
-              direction++;
-              break;
-            case 50:
-              break;
-            case 62.5:
-              direction--;
-              break;
-            case 75: 
-              direction -= 2;
-              break;
-            case 87.5:
-              direction -= 3;
-              break;
-            case 100:
-              direction -= 4;
-              break;
-          }
-*/
