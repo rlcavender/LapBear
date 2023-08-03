@@ -3,9 +3,65 @@ import React from "react";
 import Plot from 'react-plotly.js';
 
 function UploadRaceData() {
-  const [wheelValues, setWheelValues] = React.useState([]);
-  const [plotRange, setPlotRange] = React.useState();
+  const [wheelData, setWheelData] = React.useState([]);
+  const [brakeData, setBrakeData] = React.useState([]);
+  const [throttleData, setThrottleData] = React.useState([]);
+  const [gearData, setGearData] = React.useState([]);
+
+  const [wheelDataRange, setWheelDataRange] = React.useState([]);
+  const [brakeDataRange, setBrakeDataRange] = React.useState([]);
+  const [throttleDataRange, setThrottleDataRange] = React.useState([]);
+  const [gearDataRange, setGearDataRange] = React.useState([]);
+
   const [fileName, setFileName] = React.useState('');
+
+  const plotScale = 500;
+
+  const separateByIdentifier = (values, identifier) => {
+    var wRange = [];
+    var bRange = [];
+    var tRange = [];
+    var gRange = [];
+
+    var result = [];
+    var index = 0;
+    for (let i = 0; i < values.length; i++) {
+      if (values[i][0] === identifier) {
+        // values.slice(index, 1);
+        switch (identifier) {
+          case 'W':
+            wRange.push(i);
+            break;
+          case 'B':
+            bRange.push(i);
+            break;
+          case 'T':
+            tRange.push(i);
+            break;
+          case 'G':
+            gRange.push(i);
+            break;
+        }
+        result[index] = parseFloat(values[i].replace(identifier, ""));
+        index++;
+      }
+    }
+    switch(identifier) {
+      case 'W':
+        setWheelDataRange(wRange);
+        break;
+      case 'B':
+        setBrakeDataRange(bRange);
+        break;
+      case 'T':
+        setThrottleDataRange(tRange);
+        break;
+      case 'G':
+        setGearDataRange(gRange);
+        break;
+    }
+    return result;
+  }
 
   // Handle file upload
   const showFile = async (e) => {
@@ -17,15 +73,19 @@ function UploadRaceData() {
     reader.onload = async (e) => {
       // read and parse contents
       const text = (e.target.result);
-
-      var values = text.split("\",\"Wheel turned to ");
+      var values = text.split("\",\"");
       values = values.slice(1, -1);
-      var valuesFloat = values.map(function (value) { 
-        return parseFloat(value, 10); 
-      });
+      console.log(values);
 
-      setWheelValues(valuesFloat);
-      setPlotRange(valuesFloat.length);
+      var wheelData = separateByIdentifier(values, "W");
+      var brakeData = separateByIdentifier(values, "B");
+      var throttleData = separateByIdentifier(values, "T");
+      var gearData = separateByIdentifier(values, "G");
+
+      setWheelData(wheelData);
+      setBrakeData(brakeData);
+      setThrottleData(throttleData);
+      setGearData(gearData);
         
       // draw race track approximation
       var canvas = document.getElementById('trackCanvas');
@@ -33,12 +93,11 @@ function UploadRaceData() {
         var ctx = canvas.getContext('2d');
 
         // for each wheel value, create an [x, y] coordinate pair
-        var startCoords = [340, 140];
+        var startCoords = [475, 475];
         var plotPoints = [[]];
-        for (let i = 0; i < values.length; i++) {
-          plotPoints[i] = [i, values[i]];
+        for (let i = 0; i < wheelData.length; i++) {
+          plotPoints[i] = [i, wheelData[i]];
         }
-        console.log(plotPoints);
 
         ctx.beginPath();
         ctx.moveTo.apply(ctx, startCoords);
@@ -62,7 +121,6 @@ function UploadRaceData() {
             yDec = true;
           }
         }
-        console.log(directions);
 
         var currentDirection = directions[0];
         var pointScale = 1;
@@ -124,14 +182,50 @@ function UploadRaceData() {
         <Plot
           data={[
             {
-              x: plotRange,
-              y: wheelValues,
+              x: wheelDataRange,
+              y: wheelData,
               type: 'scatter',
               mode: 'lines+markers',
               marker: {color: 'red'},
             },
           ]}
-          layout={ {width: 500, height: 500, title: 'Wheel Value Throughout Race'} }
+          layout={ {width: plotScale, height: plotScale, title: 'Wheel Data'} }
+        />
+        <Plot
+          data={[
+            {
+              x: brakeDataRange,
+              y: brakeData,
+              type: 'scatter',
+              mode: 'lines+markers',
+              marker: {color: 'red'},
+            },
+          ]}
+          layout={ {width: plotScale, height: plotScale, title: 'Brake Data'} }
+        />
+        <Plot
+          data={[
+            {
+              x: throttleDataRange,
+              y: throttleData,
+              type: 'scatter',
+              mode: 'lines+markers',
+              marker: {color: 'red'},
+            },
+          ]}
+          layout={ {width: plotScale, height: plotScale, title: 'Throttle Data'} }
+        />
+        <Plot
+          data={[
+            {
+              x: gearDataRange,
+              y: gearData,
+              type: 'scatter',
+              mode: 'lines+markers',
+              marker: {color: 'red'},
+            },
+          ]}
+          layout={ {width: plotScale, height: plotScale, title: 'Gear Data'} }
         />
         <h3>Estimated Track Layout</h3>
         <p>TODO:</p>
@@ -139,23 +233,9 @@ function UploadRaceData() {
           <li>Fix track estimation algorithm</li>
           <li>Factor in throttle/break values</li>
         </ul>
-        <canvas id="trackCanvas" width="350" height="150"/>
+        <canvas id="trackCanvas" width="500" height="500"/>
       </main>
   );
 }
   
 export default UploadRaceData;
-
-/*
-        var directions = [
-          [1, 0],   // 1      0
-          [1, 1],   // 0.5    0.5
-          [0, 1],   // 0      1 
-          [-1, 1],  // -0.5   0.5
-          [-1, 0],  // -1     0
-          [-1, -1], // -0.5   -0.5
-          [0, -1],  // 0      -1
-          [1, -1]   // 0.5    -0.5
-          [1, 0]    // 1      0
-        ]
-        */
