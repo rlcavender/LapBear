@@ -52,16 +52,16 @@ This page will regularly be updated to show what features have been added, are i
 * **Upload Race Data**
   * Can upload a .txt file with race data
   * Once file is uploaded, contents will be analyzed
-  * Generates a plot of wheel data throughout race
+  * Generates plots of wheel data, brake data, throttle data, and gear data throughout race
   * Generates an estimated track layout (needs further tweaking)
 * **Note:** Because the LapBear hardware hasn't been built yet, a Logitech G29 wheel, pedals, and shifter are being used as a substitute until more time/funding can be dedicated to building custom hardware.
 
 ### In Progress :thought_balloon:
-* Fix estimated track layout
-* Add plots for throttle/brake and current gear throughout race
-* Integrating with Firebase to support secure user registration and login
+* Continue improving estimated track layout
+* Integrate with Firebase to support secure user registration and login
+* Allow users to upload and save multiple files
 
 ### Up Next :pencil2:
-* Adding more pages to the site -- homepage upon login, profile page, device connection page, etc
-* Fleshing out existing pages
+* Add more pages to the site -- homepage upon login, profile page, device connection page, etc
+* Flesh out existing pages
 * More & better race data analysis
