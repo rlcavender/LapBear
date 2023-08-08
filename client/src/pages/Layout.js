@@ -13,6 +13,7 @@ function Layout() {
           </div>
           <nav>
             <ul>
+              <li><Link to="/LiveStreamRaceData">Live Stream Race Data</Link></li>
               <li><Link to="/UploadRaceData">Upload Race Data</Link></li>
               <li><Link to="/">Home</Link></li>
               <li><Link to="/Login">Login</Link></li>

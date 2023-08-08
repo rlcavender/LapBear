@@ -20,12 +20,10 @@ const hour = ("0" + now.getHours()).slice(-2); // Add leading zero to the hour
 const minute = ("0" + now.getMinutes()).slice(-2); // Add leading zero to the minute
 const second = ("0" + now.getSeconds()).slice(-2); // Add leading zero to the second
 
-const dateTime = `${year}-${month}-${day}-${hour}-${minute}-${second}`;
-
-console.log(dateTime);
+const filename = `${year}-${month}-${day}-${hour}-${minute}-${second}-RaceData.txt`;
 
 // Specify the file path
-const filePath = path.join(directory, 'sampleRaceData.txt');
+const filePath = path.join(directory, filename);
 
 var data = "";
 
@@ -36,7 +34,7 @@ module.exports = {
       gatherRaceData(1);
       return "Gathering race data from LapBear...";
     } catch (err) {
-      return "LapBear encountered a connection error: " + err.message + ". Please make sure your LapBear device is plugged in.";
+      return "LapBear encountered a connection error: \n" + err.message + ".\nPlease make sure your LapBear device is plugged in.";
     }
   },
 
