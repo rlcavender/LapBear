@@ -24,10 +24,10 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-      <head>
+      <div>
         <title>LapBear ʕ •ᴥ•ʔ</title>
         <link rel="stylesheet" type="text/css" href="style.css"/>
-      </head>
+      </div>
     </>
   );
 }

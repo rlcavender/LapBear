@@ -5,9 +5,8 @@ function Layout() {
   return (
     <>
       <nav>
-      <body>
         <header>
-          <div class="logo-title">
+          <div className="logo-title">
             <Link to="/"><img src={logo} alt="LapBear Logo" width="100" height="100"/></Link>
             <span>LapBear</span>
           </div>
@@ -21,7 +20,6 @@ function Layout() {
             </ul>
           </nav>
         </header>
-      </body>
       </nav>
 
       <Outlet />

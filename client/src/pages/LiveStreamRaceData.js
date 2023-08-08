@@ -149,8 +149,6 @@ function LiveStreamRaceData() {
           layout={ {width: plotScale, height: plotScale, title: 'Gear Data'} }
         />}
         <br/>
-        <InputBar name="Throttle" input={throttleValue}/>
-        <InputBar name="Brake" input={brakeValue}/>
       </main>
   );
 }
