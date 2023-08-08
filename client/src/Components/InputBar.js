@@ -3,7 +3,7 @@ import React from "react";
 function InputBar({name, input}) {
     const inputBarStyle = {
         width: `${input}%`,
-        height: '20px',
+        height: '15px',
         backgroundColor: 'red',
         //transition: 'width 0.3s ease-in-out',
     };

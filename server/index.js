@@ -26,6 +26,16 @@ app.get("/endRace", (req, res) => {
   res.json({ message: data });
 });
 
+app.get("/startLiveStream", (req, res) => {
+  var data = lapBear.connectLapBear();
+  res.json({ message: data });
+});
+
+app.get("/endLiveStream", (req, res) => {
+  var data = lapBear.disconnectLapBear();
+  res.json({ message: data });
+});
+
 app.get("/sampleFile", (req, res) => {
   fs.readFile(path.resolve(__dirname, "./dataFiles/BahrainLapv5.txt"), function (err, data) {
     data = data.toString('utf-8');

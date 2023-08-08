@@ -3,7 +3,12 @@ import Plot from 'react-plotly.js';
 import InputBar from "../Components/InputBar";
 
 function LiveStreamRaceData() {
+    const [response, setResponse] = React.useState("Waiting to start live stream...");
+
     const [buttonStates, setButtonStates] = React.useState({
+        startLiveStream: false, 
+        endLiveStream: false,
+
         showAll: false,
         hideAll: false,
 
@@ -36,6 +41,7 @@ function LiveStreamRaceData() {
     const plotScale = 300;
 
     const handleButtonClick = (buttonId) => {
+        console.log(buttonId);
         if (buttonId === 'showAll') {
             setButtonStates(() => ({
                 showAll: true,
@@ -64,10 +70,52 @@ function LiveStreamRaceData() {
         }
     };
 
+    const handleRaceData = (data) => {
+        
+    }
+
+    const handleStartLiveStream = () => {
+        setButtonStates(() => ({
+            startLiveStream: true,
+            endLiveStream: false      
+        }));
+
+        fetch("/startLiveStream")
+            .then((res) => res.json())
+            .then((data) => setResponse(data.message));
+    };
+
+    const handleEndLiveStream = () => {
+        setButtonStates(() => ({
+            startLiveStream: false,
+            endLiveStream: true     
+        }));
+
+        setResponse("Returning LapBear data...");
+
+        fetch("/endLiveStream")
+            .then((res) => res.json())
+            .then((data) => handleRaceData(JSON.parse(data.message)));
+    };
+
   return (
       <main>
         <h1>Live Stream Race Data</h1>
-        <br/><br/>
+        <div>
+            <button 
+                className={buttonStates.startLiveStream ? 'button active' : 'button inactive'}
+                onClick={() => { handleStartLiveStream() } }>
+                    Start Live Stream
+            </button>
+            <button 
+                className={buttonStates.endLiveStream ? 'button active' : 'button inactive'}
+                onClick={() => { handleEndLiveStream() } }>
+                    End Live Stream
+            </button>
+            <br/><br/>
+            <div>{response}</div>
+        </div>
+        <br/>
         <div>
             <button 
                 className={buttonStates.showAll ? 'button active' : 'button inactive'}
@@ -80,27 +128,27 @@ function LiveStreamRaceData() {
                     Hide All
             </button>
             <button 
-                className={buttonStates.wheelPlot ? 'button active' : 'button inactive'}
+                className={buttonStates.showWheelPlot ? 'button active' : 'button inactive'}
                 onClick={() => handleButtonClick('showWheelPlot')}>
                     Wheel Plot
             </button>
             <button 
-                className={buttonStates.throttlePlot ? 'button active' : 'button inactive'}
+                className={buttonStates.showThrottlePlot ? 'button active' : 'button inactive'}
                 onClick={() => handleButtonClick('showThrottlePlot')}>
                     Throttle Plot
             </button>
             <button 
-                className={buttonStates.brakePlot ? 'button active' : 'button inactive'}
+                className={buttonStates.showBrakePlot ? 'button active' : 'button inactive'}
                 onClick={() => handleButtonClick('showBrakePlot')}>
                     Brake Plot
             </button>
             <button 
-                className={buttonStates.gearPlot ? 'button active' : 'button inactive'}
+                className={buttonStates.showGearPlot ? 'button active' : 'button inactive'}
                 onClick={() => handleButtonClick('showGearPlot')}>
                     Gear Plot
             </button>
         </div>
-        {buttonStates.wheelPlot && <Plot
+        {buttonStates.showWheelPlot && <Plot
           data={[
             {
               x: wheelDataRange,
@@ -112,7 +160,7 @@ function LiveStreamRaceData() {
           ]}
           layout={ {width: plotScale, height: plotScale, title: 'Wheel Data'} }
         />}
-        {buttonStates.brakePlot && <Plot
+        {buttonStates.showBrakePlot && <Plot
           data={[
             {
               x: brakeDataRange,
@@ -124,7 +172,7 @@ function LiveStreamRaceData() {
           ]}
           layout={ {width: plotScale, height: plotScale, title: 'Brake Data'} }
         />}
-        {buttonStates.throttlePlot && <Plot
+        {buttonStates.showThrottlePlot && <Plot
           data={[
             {
               x: throttleDataRange,
@@ -136,7 +184,7 @@ function LiveStreamRaceData() {
           ]}
           layout={ {width: plotScale, height: plotScale, title: 'Throttle Data'} }
         />}
-        {buttonStates.gearPlot && <Plot
+        {buttonStates.showGearPlot && <Plot
           data={[
             {
               x: gearDataRange,
@@ -149,6 +197,8 @@ function LiveStreamRaceData() {
           layout={ {width: plotScale, height: plotScale, title: 'Gear Data'} }
         />}
         <br/>
+        <InputBar name="Throttle Data" input={10}/>
+        <InputBar name="Brake Data" input={20}/>
       </main>
   );
 }
