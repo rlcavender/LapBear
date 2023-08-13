@@ -26,14 +26,16 @@ app.get("/endRace", (req, res) => {
   res.json({ message: data });
 });
 
-app.get("/startLiveStream", (req, res) => {
-  var data = lapBear.connectLapBear();
+var i = 0;
+app.get("/getData", (req, res) => {
+  data = i.toString();
   res.json({ message: data });
+  i++;
 });
 
-app.get("/endLiveStream", (req, res) => {
-  var data = lapBear.disconnectLapBear();
-  res.json({ message: data });
+app.get("/endStream", (req, res) => {
+  i = 0;
+  res.json({ message: "0" })
 });
 
 app.get("/sampleFile", (req, res) => {

@@ -1,9 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import Plot from 'react-plotly.js';
 import InputBar from "../Components/InputBar";
 
 function LiveStreamRaceData() {
     const [response, setResponse] = React.useState("Waiting to start live stream...");
+    const [streaming, setStreaming] = useState(false);
+    const [data, setData] = useState([]);
+    const [intervalId, setIntervalId] = useState(0);
+
+    const handleStartStream = async () => {
+      setButtonStates(() => ({
+        startLiveStream: true,
+        endLiveStream: false      
+      }));
+
+      fetch("/home")
+        .then((res) => res.json())
+        .then((data) => setResponse(data.message));
+
+      let interval = setInterval(function(){
+        fetch("/getData")
+          .then((res) => res.json())
+          .then((data) => setThrottleValue(data.message));
+      }, 75);
+      setIntervalId(interval);
+    };
+  
+    const handleEndStream = async () => {
+      setButtonStates(() => ({
+        startLiveStream: false,
+        endLiveStream: true     
+      }));
+
+      clearInterval(intervalId);
+
+      fetch("/endStream")
+        .then((res) => res.json())
+        .then((data) => setThrottleValue(data.message));
+    };
 
     const [buttonStates, setButtonStates] = React.useState({
         startLiveStream: false, 
@@ -70,46 +104,18 @@ function LiveStreamRaceData() {
         }
     };
 
-    const handleRaceData = (data) => {
-        
-    }
-
-    const handleStartLiveStream = () => {
-        setButtonStates(() => ({
-            startLiveStream: true,
-            endLiveStream: false      
-        }));
-
-        fetch("/startLiveStream")
-            .then((res) => res.json())
-            .then((data) => setResponse(data.message));
-    };
-
-    const handleEndLiveStream = () => {
-        setButtonStates(() => ({
-            startLiveStream: false,
-            endLiveStream: true     
-        }));
-
-        setResponse("Returning LapBear data...");
-
-        fetch("/endLiveStream")
-            .then((res) => res.json())
-            .then((data) => handleRaceData(JSON.parse(data.message)));
-    };
-
   return (
       <main>
         <h1>Live Stream Race Data</h1>
         <div>
             <button 
                 className={buttonStates.startLiveStream ? 'button active' : 'button inactive'}
-                onClick={() => { handleStartLiveStream() } }>
+                onClick={() => { handleStartStream() } }>
                     Start Live Stream
             </button>
             <button 
                 className={buttonStates.endLiveStream ? 'button active' : 'button inactive'}
-                onClick={() => { handleEndLiveStream() } }>
+                onClick={() => { handleEndStream() } }>
                     End Live Stream
             </button>
             <br/><br/>
@@ -197,8 +203,8 @@ function LiveStreamRaceData() {
           layout={ {width: plotScale, height: plotScale, title: 'Gear Data'} }
         />}
         <br/>
-        <InputBar name="Throttle Data" input={10}/>
-        <InputBar name="Brake Data" input={20}/>
+        <InputBar name="Throttle Data" input={throttleValue}/>
+        <InputBar name="Brake Data" input={brakeValue}/>
       </main>
   );
 }
