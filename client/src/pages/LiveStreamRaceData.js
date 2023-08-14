@@ -13,7 +13,6 @@ function LiveStreamRaceData() {
         var currentX = 0;
         socket.onmessage = (event) => {
           let valuePair = event.data.split(" ");
-          console.log(valuePair);
           switch(parseInt(valuePair[0])) {
             case 0:
               setWheelValue(valuePair[1]);
@@ -102,7 +101,6 @@ function LiveStreamRaceData() {
     const plotScale = 300;
 
     const handleButtonClick = (buttonId) => {
-        console.log(buttonId);
         if (buttonId === 'showAll') {
             setButtonStates(() => ({
                 showAll: true,

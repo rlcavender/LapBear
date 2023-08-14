@@ -14,15 +14,12 @@ const wss = new WebSocket.Server({ server });
 const lapBear = require("./lapBear");
 
 wss.on('connection', (ws) => {
-  console.log("connected");
   // This is where you can handle the data stream to the client.
   // You might want to set up a loop to send data continuously.
 
   ws.on('message', (message) => {
     message = message.toString();
-    console.log(message);
     if (message === 'start') {
-      console.log("starting data stream");
       g.connect();
       // Start sending data to the client continuously
       const interval = setInterval(() => {
@@ -41,7 +38,6 @@ wss.on('connection', (ws) => {
         clearInterval(interval);
       });
     } else if (message === 'end') {
-      console.log("ending data stream");
       g.disconnect();
       // Client requested to stop the stream
       ws.close();
