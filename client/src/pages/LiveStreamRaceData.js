@@ -10,18 +10,28 @@ function LiveStreamRaceData() {
 
     useEffect(() => {
       if (socket) {
+        var currentX = 0;
         socket.onmessage = (event) => {
           let valuePair = event.data.split(" ");
           console.log(valuePair);
           switch(parseInt(valuePair[0])) {
             case 0:
               setWheelValue(valuePair[1]);
+              setWheelData((prevArray) => [...prevArray, valuePair[1]]);
+              setWheelDataRange((prevArray) => [...prevArray, currentX]);
+              currentX++;
               break;
             case 1:
               setThrottleValue(valuePair[1]);
+              setThrottleData((prevArray) => [...prevArray, valuePair[1]]);
+              setThrottleDataRange((prevArray) => [...prevArray, currentX]);
+              currentX++;
               break;
             case 2:
               setBrakeValue(valuePair[1]);
+              setBrakeData((prevArray) => [...prevArray, valuePair[1]]);
+              setBrakeDataRange((prevArray) => [...prevArray, currentX]);
+              currentX++;
               break;
           }
         };
