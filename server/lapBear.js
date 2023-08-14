@@ -45,6 +45,14 @@ module.exports = {
     } catch (err) {
       return "LapBear encountered an error when attempting to disconnect: " + err.message;
     }
+  },
+  startStream: function () {
+    try {
+      g.connect();
+      return "Connected successfully.";
+    } catch (err) {
+      return "LapBear encountered a connection error: \n" + err.message + ".\nPlease make sure your LapBear device is plugged in.";
+    }
   }
 }
 

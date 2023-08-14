@@ -1,12 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Plot from 'react-plotly.js';
 import InputBar from "../Components/InputBar";
 
 function LiveStreamRaceData() {
     const [response, setResponse] = React.useState("Waiting to start live stream...");
-    const [streaming, setStreaming] = useState(false);
-    const [data, setData] = useState([]);
     const [intervalId, setIntervalId] = useState(0);
+
+    const [socket, setSocket] = useState(null);
+
+    useEffect(() => {
+      if (socket) {
+        socket.onmessage = (event) => {
+          let valuePair = event.data.split(" ");
+          console.log(valuePair);
+          switch(parseInt(valuePair[0])) {
+            case 0:
+              setWheelValue(valuePair[1]);
+              break;
+            case 1:
+              setThrottleValue(valuePair[1]);
+              break;
+            case 2:
+              setBrakeValue(valuePair[1]);
+              break;
+          }
+        };
+      }
+    }, [socket]);
 
     const handleStartStream = async () => {
       setButtonStates(() => ({
@@ -14,16 +34,11 @@ function LiveStreamRaceData() {
         endLiveStream: false      
       }));
 
-      fetch("/home")
-        .then((res) => res.json())
-        .then((data) => setResponse(data.message));
-
-      let interval = setInterval(function(){
-        fetch("/getData")
-          .then((res) => res.json())
-          .then((data) => setThrottleValue(data.message));
-      }, 75);
-      setIntervalId(interval);
+      const newSocket = new WebSocket('ws://localhost:8080');
+      newSocket.onopen = () => {
+        newSocket.send('start'); // Start the data stream
+      };
+      setSocket(newSocket);
     };
   
     const handleEndStream = async () => {
@@ -34,9 +49,11 @@ function LiveStreamRaceData() {
 
       clearInterval(intervalId);
 
-      fetch("/endStream")
-        .then((res) => res.json())
-        .then((data) => setThrottleValue(data.message));
+      if (socket) {
+        socket.send('end'); // Stop the data stream
+        socket.close();
+        setSocket(null);
+      }
     };
 
     const [buttonStates, setButtonStates] = React.useState({
@@ -67,7 +84,7 @@ function LiveStreamRaceData() {
     const [throttleDataRange, setThrottleDataRange] = React.useState([]);
     const [gearDataRange, setGearDataRange] = React.useState([]);
 
-    const [wheelValue, setWheelValue] = React.useState(50);
+    const [wheelValue, setWheelValue] = React.useState(0);
     const [brakeValue, setBrakeValue] = React.useState(0);
     const [throttleValue, setThrottleValue] = React.useState(0);
     const [gearValue, setGearValue] = React.useState(0);
@@ -203,6 +220,7 @@ function LiveStreamRaceData() {
           layout={ {width: plotScale, height: plotScale, title: 'Gear Data'} }
         />}
         <br/>
+        <InputBar name="Wheel Data" input={wheelValue}/>
         <InputBar name="Throttle Data" input={throttleValue}/>
         <InputBar name="Brake Data" input={brakeValue}/>
       </main>
