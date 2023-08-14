@@ -14,14 +14,10 @@ const wss = new WebSocket.Server({ server });
 const lapBear = require("./lapBear");
 
 wss.on('connection', (ws) => {
-  // This is where you can handle the data stream to the client.
-  // You might want to set up a loop to send data continuously.
-
   ws.on('message', (message) => {
     message = message.toString();
     if (message === 'start') {
       g.connect();
-      // Start sending data to the client continuously
       const interval = setInterval(() => {
         g.once("wheel-turn", function(val) {
           ws.send(0 + " " + val);
@@ -32,14 +28,13 @@ wss.on('connection', (ws) => {
         g.once("pedals-brake", function(val) {
           ws.send(2 + " " + (val * 100));
         })
-      }, 50); // Adjust the interval as needed
+      }, 50);
 
       ws.on('close', () => {
         clearInterval(interval);
       });
     } else if (message === 'end') {
       g.disconnect();
-      // Client requested to stop the stream
       ws.close();
     }
   });
@@ -86,7 +81,7 @@ app.get("/sampleFile", (req, res) => {
 }) 
 });
 
-// All other GET requests not handled before will return our React app
+// Wildcard
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
 });
